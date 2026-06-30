@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: payment-service
+  namespace: demo
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: payment
+
+  template:
+    metadata:
+      labels:
+        app: payment
+
+    spec:
+      containers:
+      - name: payment
+        image: busybox
+
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true
+          do
+            if [ "$API_TOKEN" = "new-token-456" ]; then
+              echo "Authentication Successful"
+            else
+              echo "401 Unauthorized"
+              echo "Token validation failed"
+            fi
+
+            sleep 20
+          done
+
+        env:
+        - name: API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: payment-secret
+              key: API_TOKEN
